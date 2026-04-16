@@ -387,17 +387,66 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 
 
 <!-- SELF HELP -->
-<div class="book-card" onclick="searchRecommendedBook('Atomic Habits')">
-<img src="https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg">
-<div class="book-title">Atomic Habits</div>
-<div class="book-category">Self Help</div>
+<div class="book-card" onclick="searchRecommendedBook('Pride and Prejudice')">
+  <img src="https://covers.openlibrary.org/b/id/8231856-L.jpg">
+  <div class="book-title">Pride and Prejudice</div>
+  <div class="book-category">Romance</div>
 </div>
 
-<div class="book-card" onclick="searchRecommendedBook('Pride and Prejudice')">
-<img src="https://covers.openlibrary.org/b/isbn/9780141439518-L.jpg">
-<div class="book-title">Pride and Prejudice</div>
-<div class="book-category">Classic Novel</div>
+<div class="book-card" onclick="searchRecommendedBook('The War of the Worlds')">
+  <img src="https://covers.openlibrary.org/b/id/7222246-L.jpg">
+  <div class="book-title">The War of the Worlds</div>
+  <div class="book-category">Sci-Fi</div>
 </div>
+
+<div class="book-card" onclick="searchRecommendedBook('Dracula')">
+  <img src="https://covers.openlibrary.org/b/id/8231990-L.jpg">
+  <div class="book-title">Dracula</div>
+  <div class="book-category">Horror</div>
+</div>
+
+<div class="book-card" onclick="searchRecommendedBook('The Adventures of Sherlock Holmes')">
+  <img src="https://covers.openlibrary.org/b/id/8226191-L.jpg">
+  <div class="book-title">Sherlock Holmes</div>
+  <div class="book-category">Mystery</div>
+</div>
+
+<div class="book-card" onclick="searchRecommendedBook('Alice in Wonderland')">
+  <img src="https://covers.openlibrary.org/b/id/8234141-L.jpg">
+  <div class="book-title">Alice in Wonderland</div>
+  <div class="book-category">Fantasy</div>
+</div>
+
+<div class="book-card" onclick="searchRecommendedBook('The Republic Plato')">
+  <img src="https://covers.openlibrary.org/b/id/8235083-L.jpg">
+  <div class="book-title">The Republic</div>
+  <div class="book-category">Philosophy</div>
+</div>
+
+<div class="book-card" onclick="searchRecommendedBook('A Tale of Two Cities')">
+  <img src="https://covers.openlibrary.org/b/id/7222276-L.jpg">
+  <div class="book-title">A Tale of Two Cities</div>
+  <div class="book-category">Historical</div>
+</div>
+
+<div class="book-card" onclick="searchRecommendedBook('The Secret Garden')">
+  <img src="https://covers.openlibrary.org/b/id/8225631-L.jpg">
+  <div class="book-title">The Secret Garden</div>
+  <div class="book-category">Children</div>
+</div>
+
+<div class="book-card" onclick="searchRecommendedBook('Treasure Island')">
+  <img src="https://covers.openlibrary.org/b/id/8232001-L.jpg">
+  <div class="book-title">Treasure Island</div>
+  <div class="book-category">Adventure</div>
+</div>
+
+<div class="book-card" onclick="searchRecommendedBook('The Odyssey')">
+  <img src="https://covers.openlibrary.org/b/id/8235112-L.jpg">
+  <div class="book-title">The Odyssey</div>
+  <div class="book-category">Epic</div>
+</div>
+
 
 <div class="book-card" onclick="searchRecommendedBook('Sherlock Holmes')">
 <img src="https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg">
@@ -506,6 +555,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <input type="text" id="bookSearch" placeholder="Search title like Dracula...">
 <button onclick="searchBooks()">Search</button>
 <div id="bookResults" class="results-box"></div>
+<div id="pdfPages" class="results-box"></div>
 <textarea id="bookTextViewer" placeholder="Selected book content appears here..."></textarea>
 <button onclick="playText('bookTextViewer')">▶ Play Book Audio</button>
 <button onclick="pauseAudio()">⏸ Pause</button>
@@ -542,6 +592,30 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <button onclick="stopAudio()">⏹ Stop</button>
 </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+<section>
+  <h2>Open Source Library</h2>
+  <div id="recommended-books"></div>
+  <button onclick="loadMoreBooks()">Load More Books</button>
+</section>
+
+
+
+
+
+
+
+
+
 
 <div class="auth-section">
   <button onclick="openLogin()">Login</button>
@@ -730,7 +804,7 @@ async function loadBook(book){
    }
  }
 
- const box = document.getElementById("bookResults");
+ const box = document.getElementById("pdfPages");
  box.innerHTML = "";
 
  if(headings.length === 0){
@@ -929,6 +1003,42 @@ function resumeAudio(){
 function stopAudio(){
  speechSynthesis.cancel();
 }
+
+
+let currentPage = 1;
+
+async function loadOpenSourceBooks(page = 1) {
+  const response = await fetch(`https://gutendex.com/books?page=${page}`);
+  const data = await response.json();
+
+  const container = document.getElementById("recommended-books");
+
+  data.results.forEach(book => {
+    const title = book.title;
+    const author = book.authors.length ? book.authors[0].name : "Unknown";
+    const cover = book.formats["image/jpeg"] || "fallback-cover.jpg";
+
+    const card = document.createElement("div");
+    card.className = "book-card";
+    card.onclick = () => searchRecommendedBook(title);
+
+    card.innerHTML = `
+      <img src="${cover}">
+      <div class="book-title">${title}</div>
+      <div class="book-category">${author}</div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function loadMoreBooks() {
+  currentPage++;
+  loadOpenSourceBooks(currentPage);
+}
+
+
+
 </script>
 
 </body>
