@@ -49,17 +49,34 @@ app.get("/api/search-books", async (req, res) => {
 // ===============================
 // 2. Load Full Book Text
 // ===============================
-app.get("/api/load-book-text", async (req, res) => {
+app.get("/api/load-book", async (req, res) => {
     try {
-        const url = req.query.url;
+        let url = req.query.url;
 
-        const response = await axios.get(url);
+        if (!url) {
+            return res.status(400).json({ error: "Missing URL" });
+        }
+
+        // Force HTTPS
+        url = url.replace("http://", "https://");
+
+        const response = await axios.get(url, {
+            headers: {
+                "User-Agent": "Mozilla/5.0"
+            },
+            timeout: 15000,
+            maxRedirects: 10
+        });
 
         res.send(response.data);
 
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Failed to load book text");
+        console.error("Load book error:", error.message);
+
+        res.status(500).json({
+            error: "Book load failed",
+            details: error.message
+        });
     }
 });
 
