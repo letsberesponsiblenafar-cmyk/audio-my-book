@@ -727,11 +727,22 @@ async function loadOnlineBook(book){
      return;
    }
 
+   textUrl = textUrl.replace("http://", "https://");
+
    const response = await fetch(
      `/api/load-book?url=${encodeURIComponent(textUrl)}`
    );
 
+   if(!response.ok){
+     throw new Error("Book loading failed");
+   }
+
    const text = await response.text();
+
+   if(!text || text.length < 50){
+     alert("Book text unavailable.");
+     return;
+   }
 
    document.getElementById("bookTextViewer").value =
      text.substring(0,50000);
@@ -741,7 +752,6 @@ async function loadOnlineBook(book){
    alert("Failed to load book.");
  }
 }
-
 async function loadPDFText(){
  const file = document.getElementById("pdfFile").files[0];
  if(!file) return alert("Choose a PDF.");
