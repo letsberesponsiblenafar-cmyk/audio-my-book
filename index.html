@@ -700,7 +700,7 @@ async function searchBooks(){
 }
 
 async function loadBook(book){
- let textUrl=
+ let textUrl =
      book.formats["text/plain; charset=utf-8"] ||
      book.formats["text/plain"] ||
      book.formats["text/plain; charset=us-ascii"];
@@ -710,10 +710,65 @@ async function loadBook(book){
    return;
  }
 
- const response=await fetch(textUrl);
- const text=await response.text();
- document.getElementById("bookTextViewer").value=text.substring(0,20000);
+ const response = await fetch(textUrl);
+ const text = await response.text();
+
+ const headings = detectBookHeadings(text);
+
+ const box = document.getElementById("bookResults");
+ box.innerHTML = "";
+
+ if(headings.length === 0){
+   document.getElementById("bookTextViewer").value = text.substring(0,20000);
+   return;
+ }
+
+ for(let i=0; i<headings.length; i++){
+   const startLine = headings[i].index;
+   const endLine = (i+1 < headings.length)
+     ? headings[i+1].index
+     : text.split("\n").length;
+
+   const sectionText = text.split("\n")
+     .slice(startLine,endLine)
+     .join("\n");
+
+   const div = document.createElement("div");
+   div.className = "result-item";
+   div.innerHTML = `${i+1}. ${headings[i].title}`;
+
+   div.onclick = ()=>{
+     document.getElementById("bookTextViewer").value = sectionText;
+   };
+
+   box.appendChild(div);
+ }
 }
+
+
+function detectBookHeadings(fullText) {
+  const lines = fullText.split("\n");
+  let headings = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i].trim();
+
+    if (
+      /^chapter\s+\d+/i.test(line) ||
+      /^chapter\s+[ivxlcdm]+/i.test(line) ||
+      /^part\s+\d+/i.test(line) ||
+      /^[A-Z][A-Z\s\-,:]{5,}$/.test(line)
+    ) {
+      headings.push({
+        title: line,
+        index: i
+      });
+    }
+  }
+
+  return headings;
+}
+
 
 async function loadOnlineBook(book){
  try{
