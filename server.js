@@ -13,10 +13,17 @@ const pdfParse = require("pdf-parse");
 const EPub = require("epub");
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
-const PORT = 5000;
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+
 
 // ===============================
 // File Upload Setup
@@ -170,7 +177,7 @@ app.post("/api/get-page", (req, res) => {
 // ===============================
 // Health Check
 // ===============================
-app.get("/", (req, res) => {
+app.get("/health", (req, res) => {
     res.send("AUDIO MY BOOK Backend Running");
 });
 
