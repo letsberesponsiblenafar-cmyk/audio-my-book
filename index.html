@@ -292,6 +292,69 @@ button:hover{
   border:1px solid var(--red);
 }
 
+
+/* Open Source Books Grid Layout */
+#recommended-books {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 books per row */
+  gap: 20px;
+  margin-top: 20px;
+  padding: 20px;
+}
+
+/* Book Card Style */
+.book-card {
+  background: #111;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.book-card:hover {
+  transform: scale(1.03);
+}
+
+/* Portrait Book Cover */
+.book-card img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Book Title */
+.book-title {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 8px 5px;
+  color: white;
+}
+
+/* Author / Category */
+.book-category {
+  font-size: 12px;
+  color: gray;
+  padding-bottom: 10px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+  #recommended-books {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  #recommended-books {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+
+
+
 /* Login */
 .top-nav{
  display:flex;
@@ -616,8 +679,6 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
   <div id="recommended-books"></div>
   <button onclick="loadMoreBooks()">Load More Books</button>
 </section>
-
-
 
 
 
