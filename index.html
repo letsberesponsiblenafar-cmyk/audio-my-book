@@ -774,69 +774,82 @@ async function searchBooks(){
 }
 
 async function loadBook(book){
- let textUrl =
+ try{
+
+   let textUrl =
      book.formats["text/plain; charset=utf-8"] ||
      book.formats["text/plain"] ||
      book.formats["text/plain; charset=us-ascii"];
 
- if(!textUrl){
-   alert("Book text unavailable.");
-   return;
- }
-
- const response = await fetch(textUrl);
- const text = await response.text();
-
- currentFullBookText = text;
-
- const lines = text.split("\n");
-
- const headings = detectBookHeadings(text);
- console.log(headings);
-
- // Fallback automatic sections
- if(headings.length === 0){
-   for(let i = 0; i < lines.length; i += 300){
-     headings.push({
-       title: "Section " + (headings.length + 1),
-       index: i
-     });
+   if(!textUrl){
+     alert("Book text unavailable.");
+     return;
    }
- }
 
- const box = document.getElementById("pdfPages");
- box.innerHTML = "";
+   textUrl = textUrl.replace("http://","https://");
 
- if(headings.length === 0){
-   document.getElementById("bookTextViewer").value =
-     text.substring(0,20000);
-   return;
- }
+   const response = await fetch(textUrl);
 
- for(let i = 0; i < headings.length; i++){
+   if(!response.ok){
+     alert("Failed to fetch book text.");
+     return;
+   }
 
-   const startLine = headings[i].index;
-   const endLine =
-     (i + 1 < headings.length)
-     ? headings[i + 1].index
-     : lines.length;
+   const text = await response.text();
 
-   const sectionText =
-     lines.slice(startLine, endLine).join("\n");
+   currentFullBookText = text;
 
-   const div = document.createElement("div");
-   div.className = "result-item";
-   div.innerHTML = `${i + 1}. ${headings[i].title}`;
+   const lines = text.split("\n");
+   const headings = detectBookHeadings(text);
 
-   div.onclick = ()=>{
-     document.getElementById("bookTextViewer").value =
+   if(headings.length === 0){
+     for(let i=0;i<lines.length;i+=300){
+       headings.push({
+         title:"Section " + (headings.length+1),
+         index:i
+       });
+     }
+   }
+
+   document.getElementById("bookResults").innerHTML = "";
+
+   const box = document.getElementById("pdfPages");
+
+   if(!box){
+     alert("pdfPages container missing in HTML.");
+     return;
+   }
+
+   box.innerHTML = "";
+
+   for(let i=0;i<headings.length;i++){
+
+     const startLine = headings[i].index;
+     const endLine =
+       (i+1 < headings.length)
+       ? headings[i+1].index
+       : lines.length;
+
+     const sectionText =
+       lines.slice(startLine,endLine).join("\n");
+
+     const div = document.createElement("div");
+     div.className = "result-item";
+     div.innerHTML = `${i+1}. ${headings[i].title}`;
+
+     div.onclick = ()=>{
+       document.getElementById("bookTextViewer").value =
        sectionText;
-   };
+     };
 
-   box.appendChild(div);
+     box.appendChild(div);
+   }
+
+ }catch(error){
+   console.error(error);
+   alert("Error loading book: " + error.message);
  }
 }
-
 async function loadPDFText(){
  const file = document.getElementById("pdfFile").files[0];
  if(!file) return alert("Choose a PDF.");
