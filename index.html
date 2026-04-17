@@ -953,9 +953,12 @@ async function loadBook(book){
 async function downloadBook(){
  try{
 
-   if(!currentBookTitle){
-     alert("No book loaded.");
-     return;
+   const viewerText = document.getElementById("bookTextViewer").value;
+
+   if(!viewerText || viewerText.trim().length < 50){
+   alert("Load book first.");
+   return;
+}
    }
 
    // PRIORITY 1: PDF
