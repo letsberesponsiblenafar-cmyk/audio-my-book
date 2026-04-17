@@ -280,11 +280,11 @@ input,textarea{
 
 
 #readerContainer{
-  flex:3;
+  flex:1;
   padding:30px;
   background:#111;
-  position:relative;
   border-radius:20px;
+  position:relative;
 }
 
 #readerHeader{
@@ -303,28 +303,44 @@ input,textarea{
   font-size:14px;
 }
 
-
-
-#readerControls{
-  position:absolute;
-  top:10px;
-  left:10px;
+.light-mode{
+  background:white !important;
+  color:black !important;
 }
 
-#readerControls button{
-  padding:6px 10px;
-  border-radius:8px;
+#leftControls{
+  width:70px;
+  position:sticky;
+  top:120px;
+
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+#leftControls button{
+  width:60px;
+  padding:10px;
+  border-radius:10px;
   background:#181818;
-  color:white;
   border:1px solid rgba(255,255,255,0.1);
+  color:white;
   cursor:pointer;
 }
 
-#readerControls button:hover{
-  border-color:#e50914;
+#rightControls{
+  width:140px;
+  position:sticky;
+  top:120px;
+
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
-
+#rightControls button{
+  width:120px;
+}
 
 
 
@@ -339,14 +355,11 @@ input,textarea{
 /* Layout */
 #readerWrapper{
   display:flex;
-  gap:25px;
+  gap:20px;
   align-items:flex-start;
-  max-width:1100px;
+  max-width:1200px;
   margin:30px auto;
-  
 }
-
-
 
 textarea{
   min-height:350px;
@@ -544,6 +557,7 @@ button:hover{
     flex-direction:column;
   }
 
+
   #sideControls{
     position:static;
     flex-direction:row;
@@ -553,7 +567,6 @@ button:hover{
   }
 }
 
-
 #sideControls{
   flex:1;
   position:sticky;
@@ -562,6 +575,21 @@ button:hover{
   display:flex;
   flex-direction:column;
   gap:12px;
+}
+
+.leftControls,
+.rightControls{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.leftControls button{
+  width:60px; /* small buttons */
+}
+
+.rightControls button{
+  width:120px; /* bigger buttons */
 }
 
 
@@ -831,18 +859,16 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <div id="searchPdfPages" class="results-box"></div>
 <div id="readerWrapper">
 
-  <!-- LEFT SIDE (READER) -->
+  <!-- LEFT CONTROLS -->
+  <div id="leftControls">
+    <button onclick="changeFontSize(1)">A+</button>
+    <button onclick="changeFontSize(-1)">A-</button>
+    <button onclick="toggleDarkMode()">🌙</button>
+  </div>
+
+  <!-- CENTER READER -->
   <div id="readerContainer">
 
-
-
-       <div id="readerControls">
-      <button onclick="changeFontSize(1)">A+</button>
-      <button onclick="changeFontSize(-1)">A-</button>
-      <button onclick="toggleDarkMode()">🌙</button>
-    </div>
-
-     
     <div id="readerHeader">
       <h2 id="readerTitle"></h2>
       <p id="readerMeta"></p>
@@ -852,15 +878,16 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 
   </div>
 
-
-  <!-- RIGHT SIDE (STICKY CONTROLS) -->
-  <div id="sideControls">
+  <!-- RIGHT CONTROLS -->
+  <div id="rightControls">
     <button onclick="playText('reader')">▶ Play</button>
     <button onclick="pauseAudio()">⏸ Pause</button>
     <button onclick="resumeAudio()">⏯ Resume</button>
     <button onclick="stopAudio()">⏹ Stop</button>
     <button onclick="downloadBook()">⬇ Download</button>
   </div>
+
+</div>  
 
 </div>
 </div>
@@ -1286,16 +1313,8 @@ function changeFontSize(change){
 
 function toggleDarkMode(){
   const reader = document.getElementById("readerContainer");
-
-  if(reader.style.background === "white"){
-    reader.style.background = "#111";
-    reader.style.color = "white";
-  } else {
-    reader.style.background = "white";
-    reader.style.color = "black";
-  }
+  reader.classList.toggle("light-mode");
 }
-
 
 async function loadPDFText(){
  const file = document.getElementById("pdfFile").files[0];
