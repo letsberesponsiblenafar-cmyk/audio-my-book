@@ -107,10 +107,38 @@ body{
   padding-top:260px;
 }
 
+
+
 .hero{
+  position:relative;
   text-align:center;
-  padding:40px 20px;
+  padding:60px 20px;
+  overflow:hidden;
 }
+
+/* Background Image Layer */
+.hero::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+
+  background-image:url("https://miro.medium.com/v2/format:webp/0*EfkvjCOb8HA-dKNR");
+  background-size:cover;
+  background-position:center;
+
+  opacity:0.15; /* 15% opacity */
+  z-index:0;
+}
+
+/* Keep text above image */
+.hero *{
+  position:relative;
+  z-index:1;
+}
+
 
 .hero h1{
   font-family:'Cinzel',serif;
