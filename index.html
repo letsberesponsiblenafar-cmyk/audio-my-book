@@ -646,7 +646,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <input type="text" id="bookSearch" placeholder="Search title like Dracula...">
 <button onclick="searchBooks()">Search</button>
 <div id="bookResults" class="results-box"></div>
-<div id="pdfPages" class="results-box"></div>
+<div id="searchPdfPages" class="results-box"></div>
 <textarea id="bookTextViewer" placeholder="Selected book content appears here..."></textarea>
 <button onclick="playText('bookTextViewer')">▶ Play Book Audio</button>
 <button onclick="pauseAudio()">⏸ Pause</button>
@@ -779,8 +779,7 @@ let currentUtterance = null;
 let currentBookUrl = "";
 let currentBookTitle = "";
 let currentPdfUrl = "";
-let currentEpubUrl = "";
-
+let currentFullBookText = "";
 
 speechSynthesis.onvoiceschanged = ()=>{
  voices = speechSynthesis.getVoices();
@@ -913,6 +912,7 @@ async function loadBook(book){
      return;
    }
    
+   document.getElementById("bookTextViewer").value = "Loading book...";
   
    const response = await fetch(
      `/api/load-book-text?url=${encodeURIComponent(textUrl)}`
@@ -963,17 +963,16 @@ async function downloadBook(){
 
    // PRIORITY 1: PDF
    if(currentPdfUrl){
-     window.open(currentPdfUrl, "_blank");
+     const a = document.createElement("a");
+      a.href = currentPdfUrl;
+      a.target = "_blank";
+      a.click();
      return;
    }
 
-   // PRIORITY 2: EPUB
-   if(currentEpubUrl){
-     window.open(currentEpubUrl, "_blank");
-     return;
-   }
 
-   // PRIORITY 3: TEXT (fallback)
+
+   // PRIORITY 2: TEXT (fallback)
    if(currentBookUrl){
 
      const response = await fetch(
