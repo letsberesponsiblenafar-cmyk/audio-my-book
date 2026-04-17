@@ -304,9 +304,46 @@ input,textarea{
 }
 
 #readerControls{
+  position:sticky;
+  top:0;
+  z-index:10;
+
   display:flex;
+  justify-content:flex-end;
   gap:10px;
-  margin:15px 0;
+
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(10px);
+
+  padding:10px;
+  border-radius:12px;
+
+  margin-bottom:15px;
+}
+
+
+
+#readerContainer{
+  position:relative;
+}
+
+#readerControls{
+  position:absolute;
+  top:10px;
+  left:10px;
+}
+
+#readerControls button{
+  padding:6px 10px;
+  border-radius:8px;
+  background:#181818;
+  color:white;
+  border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer;
+}
+
+#readerControls button:hover{
+  border-color:#e50914;
 }
 
 #readerContent{
@@ -317,11 +354,26 @@ input,textarea{
 }
 
 
+/* Layout */
+#readerWrapper{
+  display:flex;
+  gap:25px;
+  align-items:flex-start;
+  max-width:1100px;
+  margin:30px auto;
+}
+
+/* Reader takes more space */
+#readerContainer{
+  flex:3;
+}
+
 
 textarea{
   min-height:350px;
   resize:vertical;
 }
+
 
 #audioControls{
   max-width:900px;
@@ -451,6 +503,73 @@ button:hover{
 @media (max-width: 500px) {
   #recommended-books {
     grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+
+
+/* Wrapper for PDF layout */
+#pdfWrapper{
+  display:flex;
+  gap:25px;
+  align-items:flex-start;
+  margin-top:20px;
+}
+
+/* Make textarea take more space */
+#pdfTextViewer{
+  flex:3;
+  min-height:400px;
+}
+
+/* Shared side controls (used in both pages) */
+.sideControls{
+  flex:1;
+  position:sticky;
+  top:120px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* Buttons */
+#sideControls button{
+  width:100px;              /* 👈 smaller width */
+  padding:10px 8px;         /* 👈 balanced padding */
+  border-radius:10px;
+
+  background:linear-gradient(135deg,#e50914,#ff3b30); /* 👈 red */
+  color:white;
+
+  border:none;
+  font-weight:120;
+  font-size:14px;
+
+  cursor:pointer;
+  transition:0.2s ease;
+}
+
+#sideControls button{
+  display:flex;
+  justify-content:center;
+  gap:3px;
+}
+
+.sideControls button:hover{
+  border-color:#e50914;
+}
+
+@media(max-width:800px){
+  #pdfWrapper{
+    flex-direction:column;
+  }
+
+  .sideControls{
+    position:static;
+    flex-direction:row;
+    flex-wrap:wrap;
+    justify-content:center;
+    
   }
 }
 
@@ -721,42 +840,72 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <button onclick="searchBooks()">Search</button>
 <div id="bookResults" class="results-box"></div>
 <div id="searchPdfPages" class="results-box"></div>
-<div id="readerContainer">
+<div id="readerWrapper">
 
-  <div id="readerHeader">
-    <h2 id="readerTitle"></h2>
-    <p id="readerMeta"></p>
+  <!-- LEFT SIDE (READER) -->
+  <div id="readerContainer">
+
+
+
+       <div id="readerControls">
+      <button onclick="changeFontSize(1)">A+</button>
+      <button onclick="changeFontSize(-1)">A-</button>
+      <button onclick="toggleDarkMode()">🌙</button>
+    </div>
+
+     
+    <div id="readerHeader">
+      <h2 id="readerTitle"></h2>
+      <p id="readerMeta"></p>
+    </div>
+
+    <div id="readerContent"></div>
+
   </div>
 
-  <div id="readerControls">
-    <button onclick="changeFontSize(1)">A+</button>
-    <button onclick="changeFontSize(-1)">A-</button>
-    <button onclick="toggleDarkMode()">🌙</button>
+
+  <!-- RIGHT SIDE (STICKY CONTROLS) -->
+  <div id="sideControls">
+    <button onclick="playText('reader')">▶ Play</button>
+    <button onclick="pauseAudio()">⏸ Pause</button>
+    <button onclick="resumeAudio()">⏯ Resume</button>
+    <button onclick="stopAudio()">⏹ Stop</button>
+    <button onclick="downloadBook()">⬇ Download</button>
   </div>
 
-  <div id="readerContent"></div>
-
-<button onclick="playText('reader')">▶ Play Book Audio</button>
-<button onclick="pauseAudio()">⏸ Pause</button>
-<button onclick="resumeAudio()">⏯ Resume</button>
-<button onclick="stopAudio()">⏹ Stop</button>
-<button onclick="downloadBook()">⬇ Download Book</button>
+</div>
 </div>
 </div>
 
 <!-- PDF PAGE -->
 <div id="pdfPage" class="section-page">
 <div class="panel">
+
 <button class="back-btn" onclick="goHome()">← Back Home</button>
+
 <h2>Upload PDF to Audio</h2>
+
 <input type="file" id="pdfFile" accept="application/pdf">
 <button onclick="loadPDFText()">Load PDF</button>
+
 <div id="pdfPages" class="results-box"></div>
-<textarea id="pdfTextViewer" placeholder="Selected PDF page text appears here..."></textarea>
-<button onclick="playText('pdfTextViewer')">▶ Play PDF Audio</button>
-<button onclick="pauseAudio()">⏸ Pause</button>
-<button onclick="resumeAudio()">⏯ Resume</button>
-<button onclick="stopAudio()">⏹ Stop</button>
+
+<!-- NEW LAYOUT -->
+<div id="pdfWrapper">
+
+  <!-- LEFT SIDE -->
+  <textarea id="pdfTextViewer" placeholder="Selected PDF page text appears here..."></textarea>
+
+  <!-- RIGHT SIDE CONTROLS -->
+  <div class="sideControls">
+    <button onclick="playText('pdfTextViewer')">▶ Play</button>
+    <button onclick="pauseAudio()">⏸ Pause</button>
+    <button onclick="resumeAudio()">⏯ Resume</button>
+    <button onclick="stopAudio()">⏹ Stop</button>
+  </div>
+
+</div>
+
 </div>
 </div>
 
