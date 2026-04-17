@@ -778,6 +778,8 @@ let voices = [];
 let currentUtterance = null;
 let currentBookUrl = "";
 let currentBookTitle = "";
+let currentPdfUrl = "";
+let currentEpubUrl = "";
 
 
 speechSynthesis.onvoiceschanged = ()=>{
@@ -911,9 +913,7 @@ async function loadBook(book){
      return;
    }
    
-   let currentBookUrl = "";
-   currentBookTitle = book.title;
-
+  
    const response = await fetch(
      `/api/load-book-text?url=${encodeURIComponent(textUrl)}`
    );
@@ -928,6 +928,13 @@ async function loadBook(book){
    }
 
    const text = await response.text();
+   
+   currentBookUrl = textUrl;
+   currentBookTitle = book.title;
+
+   currentPdfUrl = book.formats["application/pdf"] || "";
+   currentEpubUrl = book.formats["application/epub+zip"] || "";
+
 
    currentFullBookText = text;
 
@@ -946,43 +953,60 @@ async function loadBook(book){
 async function downloadBook(){
  try{
 
-   if(!currentBookUrl){
+   if(!currentBookTitle){
      alert("No book loaded.");
      return;
    }
 
-   const response = await fetch(
-     `/api/load-book-text?url=${encodeURIComponent(currentBookUrl)}`
-   );
-
-   if(!response.ok){
-     alert("Download failed.");
+   // PRIORITY 1: PDF
+   if(currentPdfUrl){
+     window.open(currentPdfUrl, "_blank");
      return;
    }
 
-   const text = await response.text();
+   // PRIORITY 2: EPUB
+   if(currentEpubUrl){
+     window.open(currentEpubUrl, "_blank");
+     return;
+   }
 
-   const blob = new Blob([text], { type: "text/plain" });
-   const url = window.URL.createObjectURL(blob);
+   // PRIORITY 3: TEXT (fallback)
+   if(currentBookUrl){
 
-   const a = document.createElement("a");
-   a.href = url;
+     const response = await fetch(
+       `/api/load-book-text?url=${encodeURIComponent(currentBookUrl)}`
+     );
 
-  
-   a.download = (currentBookTitle || "book") + ".txt";
+     if(!response.ok){
+       alert("Download failed.");
+       return;
+     }
 
-   document.body.appendChild(a);
-   a.click();
-   a.remove();
+     const text = await response.text();
 
-   window.URL.revokeObjectURL(url);
+     const blob = new Blob([text], { type: "text/plain" });
+     const url = window.URL.createObjectURL(blob);
+
+     const a = document.createElement("a");
+     a.href = url;
+     a.download = (currentBookTitle || "book") + ".txt";
+
+     document.body.appendChild(a);
+     a.click();
+     a.remove();
+
+     window.URL.revokeObjectURL(url);
+
+     return;
+   }
+
+   alert("No downloadable format available.");
 
  }catch(error){
    console.error(error);
    alert("Download error.");
  }
 }
-
 
 
 
