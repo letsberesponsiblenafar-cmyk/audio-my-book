@@ -661,23 +661,45 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 
 
 <div style="
-  color:#e50914;
-  font-family:'Playfair Display',serif;
-  font-size:60px;
+  max-width:420px;
+  margin:30px auto 15px;
+  padding:20px 25px;
+  background:linear-gradient(135deg,#e50914,#7a0000);
+  border-radius:18px;
   text-align:center;
-  margin:25px 0 12px;
-  text-shadow:0 0 8px rgba(229,9,20,.25);
+  font-family:'Playfair Display',serif;
+  box-shadow:0 12px 35px rgba(229,9,20,0.45);
 ">
-  70000+ BOOKS AVAILABLE
+
+  <div id="bookCount" style="
+    font-size:34px;
+    font-weight:800;
+    color:white;
+    letter-spacing:1px;
+    text-shadow:0 0 10px rgba(255,255,255,0.15);
+  ">
+    0
+  </div>
+
+  <div style="
+    margin-top:6px;
+    font-size:13px;
+    color:#ffeaea;
+    letter-spacing:3px;
+  ">
+    BOOKS AVAILABLE
+  </div>
+
+</div>
 </div>
 
 
 
 
 <section>
-  <h2>Open Source Library</h2>
+  <h2>Library</h2>
   <div id="recommended-books"></div>
-  <button onclick="loadMoreBooks()">Load More Books</button>
+  <button onclick="loadMoreBooks()">Books Library</button>
 </section>
 
 
@@ -1083,6 +1105,47 @@ function loadMoreBooks() {
   currentPage++;
   loadOpenSourceBooks(currentPage);
 }
+
+
+
+/* animationcountfornumberofbooks */
+
+
+let counterStarted = false;
+
+function animateCounter() {
+  const el = document.getElementById("bookCount");
+  const target = 70000;
+  let current = 0;
+
+  const step = target / 120; // smooth speed
+
+  function update() {
+    current += step;
+
+    if (current < target) {
+      el.innerText = Math.floor(current).toLocaleString();
+      requestAnimationFrame(update);
+    } else {
+      el.innerText = "70,000+";
+    }
+  }
+
+  update();
+}
+
+// Scroll trigger
+window.addEventListener("scroll", () => {
+  const el = document.getElementById("bookCount");
+  if (!el || counterStarted) return;
+
+  const rect = el.getBoundingClientRect();
+
+  if (rect.top < window.innerHeight - 100) {
+    counterStarted = true;
+    animateCounter();
+  }
+});
 
 
 
