@@ -53,12 +53,16 @@ app.get("/api/load-book-text", async (req, res) => {
   try {
     const url = req.query.url;
 
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0"
+      }
+    });
 
     res.send(response.data);
 
   } catch (error) {
-    console.error(error);
+    console.error("LOAD BOOK ERROR:", error.message);
     res.status(500).send("Failed to load book");
   }
 });

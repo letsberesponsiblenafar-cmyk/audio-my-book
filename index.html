@@ -874,36 +874,24 @@ async function loadBook(book){
      book.formats["text/plain; charset=us-ascii"];
 
    if(!textUrl){
-     alert("Book text unavailable.");
+     alert("Readable version not available.");
      return;
    }
 
-   // Convert http to https if needed
-   textUrl = textUrl.replace("http://", "https://");
+  const response = await fetch(
+  `/api/load-book-text?url=${encodeURIComponent(textUrl)}`
+);
 
-   const response = await fetch(textUrl);
+console.log("Status:", response.status);
 
-   if(!response.ok){
-     alert("Failed to load book.");
-     return;
-   }
-
-   const text = await response.text();
-
-   currentFullBookText = text;
-
-   // Clear search list
-   document.getElementById("bookResults").innerHTML = "";
-
-   // Load full book directly into viewer
-   document.getElementById("bookTextViewer").value =
-     text.substring(0,50000);
-
- }catch(error){
-   console.error(error);
-   alert("Error loading selected book.");
- }
+if(!response.ok){
+  const err = await response.text();
+  console.log("Backend error:", err);
+  alert("Failed to load book.");
+  return;
 }
+
+
 
 
 async function loadPDFText(){
