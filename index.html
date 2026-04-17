@@ -230,7 +230,7 @@ body{
   border-radius:24px;
   padding:30px;
   cursor:pointer;
-  transition:.3s;
+  transition:0.3s;
 }
 
 .card:hover{
@@ -253,7 +253,7 @@ body{
 .section-page{
   display:none;
   max-width:1100px;
-  margin:40px auto;
+  margin:45px auto;
   padding:20px;
 }
 
@@ -279,7 +279,7 @@ input,textarea{
 }
 
 textarea{
-  min-height:220px;
+  min-height:350px;
   resize:vertical;
 }
 
@@ -287,7 +287,7 @@ button{
   margin-top:18px;
   padding:14px 22px;
   border:none;
-  border-radius:14px;
+  border-radius:15px;
   background:linear-gradient(135deg,var(--red),var(--red2));
   color:white;
   font-weight:bold;
@@ -626,7 +626,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <div class="card" onclick="openPage('pdfPage')">
 <div class="card-icon">📄</div>
 <h3>Upload PDF Book</h3>
-<p>Upload your own PDFs and instantly extract readable text with audio playback.</p>
+<p>Upload your own PDFs and instantly extract its contents and readable text with audio playback.</p>
 </div>
 
 <div class="card" onclick="openPage('textPage')">
@@ -642,7 +642,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <div id="searchPage" class="section-page">
 <div class="panel">
 <button class="back-btn" onclick="goHome()">← Back Home</button>
-<h2>Search Open Source Books</h2>
+<h2>Search Books {Open Source Only}</h2>
 <input type="text" id="bookSearch" placeholder="Search title like Dracula...">
 <button onclick="searchBooks()">Search</button>
 <div id="bookResults" class="results-box"></div>
@@ -652,6 +652,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <button onclick="pauseAudio()">⏸ Pause</button>
 <button onclick="resumeAudio()">⏯ Resume</button>
 <button onclick="stopAudio()">⏹ Stop</button>
+<button onclick="downloadBook()">⬇ Download Book</button>
 </div>
 </div>
 
@@ -689,18 +690,18 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 
 
 <div style="
-  max-width:420px;
+  max-width:1100px;
   margin:30px auto 15px;
   padding:20px 25px;
   background:linear-gradient(135deg,#e50914,#7a0000);
-  border-radius:18px;
+  border-radius:10px;
   text-align:center;
   font-family:'Playfair Display',serif;
   box-shadow:0 12px 35px rgba(229,9,20,0.45);
 ">
 
   <div id="bookCount" style="
-    font-size:34px;
+    font-size:75px;
     font-weight:800;
     color:white;
     letter-spacing:1px;
@@ -711,7 +712,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 
   <div style="
     margin-top:6px;
-    font-size:13px;
+    font-size:20px;
     color:#ffeaea;
     letter-spacing:3px;
   ">
@@ -725,8 +726,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 
 
 <section>
-  <h2>Library</h2>
-  <div id="recommended-books"></div>
+    <div id="recommended-books"></div>
   <button onclick="loadMoreBooks()">Books Library</button>
 </section>
 
@@ -765,8 +765,8 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 </div>
 
 <div class="footer">
-© 2026 AUDIO MY BOOK | Created by
-<a href="https://instagram.com/haaceb" target="_blank">@haaceb</a>
+© 2026 AUDIOmyBOOK | Created by
+<a href="https://instagram.com/haaceb" target="_blank">@haaceb</a> | Terms & Conditions
 </div>
 
 </div>
@@ -776,6 +776,9 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <script>
 let voices = [];
 let currentUtterance = null;
+let currentBookUrl = "";
+let currentBookTitle = "";
+
 
 speechSynthesis.onvoiceschanged = ()=>{
  voices = speechSynthesis.getVoices();
@@ -788,7 +791,7 @@ window.addEventListener("scroll", function(){
  if(!ticking){
    window.requestAnimationFrame(function(){
      const header = document.getElementById("mainHeader");
-     if(window.scrollY > 80){
+     if(window.scrollY > 82){
        header.classList.add("scrolled");
      } else {
        header.classList.remove("scrolled");
@@ -907,6 +910,9 @@ async function loadBook(book){
      alert("Readable version not available.");
      return;
    }
+   
+   let currentBookUrl = "";
+   currentBookTitle = book.title;
 
    const response = await fetch(
      `/api/load-book-text?url=${encodeURIComponent(textUrl)}`
@@ -935,6 +941,51 @@ async function loadBook(book){
    alert("Error loading book.");
  }
 }
+
+
+async function downloadBook(){
+ try{
+
+   if(!currentBookUrl){
+     alert("No book loaded.");
+     return;
+   }
+
+   const response = await fetch(
+     `/api/load-book-text?url=${encodeURIComponent(currentBookUrl)}`
+   );
+
+   if(!response.ok){
+     alert("Download failed.");
+     return;
+   }
+
+   const text = await response.text();
+
+   const blob = new Blob([text], { type: "text/plain" });
+   const url = window.URL.createObjectURL(blob);
+
+   const a = document.createElement("a");
+   a.href = url;
+
+  
+   a.download = (currentBookTitle || "book") + ".txt";
+
+   document.body.appendChild(a);
+   a.click();
+   a.remove();
+
+   window.URL.revokeObjectURL(url);
+
+ }catch(error){
+   console.error(error);
+   alert("Download error.");
+ }
+}
+
+
+
+
 
 
 async function loadPDFText(){
