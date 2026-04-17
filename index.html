@@ -16,6 +16,7 @@
   --red2:#ff3b30;
   --white:#fff;
   --soft:#b8b8b8;
+  --black:#000;
 }
 
 *{
@@ -304,8 +305,8 @@ input,textarea{
 }
 
 .light-mode{
-  background:white !important;
-  color:black !important;
+  background:#fff !important;
+  color: #000 !important;
 }
 
 #leftControls{
@@ -1114,6 +1115,27 @@ function showProfile(){
  document.getElementById("profilePage").classList.add("active-page");
 }
 
+
+let searchTimeout;
+
+document.getElementById("bookSearch").addEventListener("input", function(){
+
+  clearTimeout(searchTimeout);
+
+  const query = this.value.trim();
+
+ if(query.length < 2){
+  document.getElementById("bookResults").innerHTML =
+    "<div class='result-item'>Type at least 2 letters...</div>";
+  return;
+}
+
+  searchTimeout = setTimeout(() => {
+    searchBooks();
+  }, 400); // delay (ms)
+});
+
+
 function openLogin(){
  document.getElementById("loginModal").style.display="block";
 }
@@ -1149,7 +1171,10 @@ function searchRecommendedBook(bookName){
 async function searchBooks(){
  try{
    const query = document.getElementById("bookSearch").value.trim();
-   if(!query) return alert("Enter book title.");
+   if(!query) return;
+
+   const box = document.getElementById("bookResults");
+   box.innerHTML = "Searching...";
 
    const response = await fetch(
      `/api/search-books?q=${encodeURIComponent(query)}`
@@ -1157,7 +1182,6 @@ async function searchBooks(){
 
    const books = await response.json();
 
-   const box = document.getElementById("bookResults");
    box.innerHTML = "";
 
    if(books.length === 0){
