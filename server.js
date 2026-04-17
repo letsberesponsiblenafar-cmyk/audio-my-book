@@ -51,21 +51,32 @@ app.get("/api/search-books", async (req, res) => {
 // ===============================
 app.get("/api/load-book-text", async (req, res) => {
   try {
-    const url = req.query.url;
+    let url = req.query.url;
+
+    if (!url) {
+      return res.status(400).send("No URL provided");
+    }
+
+    // Force HTTPS
+    url = url.replace("http://", "https://");
 
     const response = await axios.get(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0"
-      }
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "text/plain"
+      },
+      maxRedirects: 5,
+      timeout: 15000
     });
 
     res.send(response.data);
 
   } catch (error) {
-    console.error("LOAD BOOK ERROR:", error.message);
+    console.error("BOOK LOAD ERROR:", error.message);
     res.status(500).send("Failed to load book");
   }
 });
+
 
 // ===============================
 // 3. Upload PDF File

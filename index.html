@@ -855,7 +855,7 @@ async function searchBooks(){
        </span>
      `;
 
-     div.onclick = ()=>loadOnlineBook(book);
+     div.onclick = ()=>loadBook(book);
      box.appendChild(div);
    });
 
@@ -872,6 +872,8 @@ async function loadBook(book){
      book.formats["text/plain; charset=utf-8"] ||
      book.formats["text/plain"] ||
      book.formats["text/plain; charset=us-ascii"];
+
+   console.log("Text URL:", textUrl);
 
    if(!textUrl){
      alert("Readable version not available.");
