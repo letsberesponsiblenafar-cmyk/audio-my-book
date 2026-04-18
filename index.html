@@ -332,6 +332,12 @@ input,textarea{
   font-size:28px;
 }
 
+#readerContent{
+  max-height:75vh;
+  overflow-y:auto;
+  padding-right:10px;
+}
+
 #readerMeta{
   color:#aaa;
   font-size:14px;
@@ -1284,8 +1290,7 @@ async function loadBook(book){
    document.getElementById("readerMeta").innerText =
    book.authors.map(a => a.name).join(", ");
 
-   document.getElementById("readerContent").innerText =
-   text.substring(0,50000);
+   document.getElementById("readerContent").innerText = text;
 
  }catch(error){
    console.error(error);
@@ -1534,6 +1539,10 @@ function playText(id){
  currentUtterance.rate = parseFloat(speed);
 
  speechSynthesis.speak(currentUtterance);
+
+    if(text.length > 400000){
+     text = text.substring(0,400000);
+}
 }
 
  
