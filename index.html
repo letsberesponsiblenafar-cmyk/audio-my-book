@@ -70,14 +70,47 @@ body{
 }
 
 .top-line{
-  font-size:82px;
+  font-size:clamp(45px, 16vw, 90px);
 }
 
 .bottom-line{
-  font-size:60px;
+  font-size:clamp(34px, 12vw, 75px);
   margin-top:-4px;
   color:#e50914;
 
+}
+
+@media(max-width:768px){
+
+  .hero-logo{
+    margin-top:80px;
+  }
+
+  .top-line{
+    font-size:45px;        
+    letter-spacing:2px;   
+  }
+
+  .bottom-line{
+    font-size:35px;
+    letter-spacing:1px;
+  }
+
+  .hero h1{
+    font-size:28px;
+  }
+
+  .hero p{
+    font-size:16px;
+    padding:0 10px;
+  }
+
+}
+
+.logo-line{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 #mainHeader.scrolled{
@@ -676,11 +709,10 @@ button:hover{
 <section class="hero">
 <h1>Turn Every Book Into Cinematic Audio</h1>
 <p>
-Search books, upload PDFs, or paste your own text and convert them into immersive elegant narration.
+Search, Read and Download books, upload PDFs, or paste your own text and convert them into immersive elegant narration.
 </p>
 </section>
 
-<!-- REPLACE ONLY THE Recommended For You SECTION WITH THIS -->
 
 <h2 class="section-heading">Recommended For You</h2>
 
@@ -706,7 +738,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <div class="book-card" onclick="searchRecommendedBook('Pride and Prejudice')">
   <img src="https://www.trippingoverbooks.com/wp-content/uploads/2013/01/pride_prejudice_allen_thomson_cover.jpg">
   <div class="book-title">Pride and Prejudice</div>
-  <div class="book-category">Romance</div>
+  <div class="book-category">Novel</div>
 </div>
 
 <div class="book-card" onclick="searchRecommendedBook('The War of the Worlds')">
@@ -825,7 +857,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 <div class="card" onclick="openPage('searchPage')">
 <div class="card-icon">🔍</div>
 <h3>Search Your Book</h3>
-<p>Search real open-source books and load full readable text instantly.</p>
+<p>Search, Read and Download real open-source books and load full readable text instantly.</p>
 </div>
 
 <div class="card" onclick="openPage('pdfPage')">
@@ -901,7 +933,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
 
 <div id="pdfPages" class="results-box"></div>
 
-<!-- NEW LAYOUT -->
+<!-- LAYOUT -->
 <div id="pdfWrapper">
 
   <!-- LEFT SIDE -->
@@ -952,6 +984,7 @@ Search books, upload PDFs, or paste your own text and convert them into immersiv
       <option value="1.25">1.25x</option>
       <option value="1.5">1.5x</option>
       <option value="1.75">1.75x</option>
+      <option value="2">2x</option>
     </select>
   </div>
 
