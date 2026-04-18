@@ -1539,10 +1539,6 @@ function playText(id){
  currentUtterance.rate = parseFloat(speed);
 
  speechSynthesis.speak(currentUtterance);
-
-    if(text.length > 400000){
-     text = text.substring(0,400000);
-}
 }
 
  
