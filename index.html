@@ -322,7 +322,7 @@ input,textarea{
 }
 
 
-#readerContainer{
+.readerContainer{
   flex:1;
   padding:30px;
   background:#111;
@@ -330,24 +330,29 @@ input,textarea{
   position:relative;
 }
 
-#readerHeader{
+.readerHeader{
   margin-bottom:20px;
   border-bottom:1px solid rgba(255,255,255,0.1);
   padding-bottom:10px;
 }
 
-#readerTitle{
+.readerTitle{
   font-family:'Cinzel',serif;
   font-size:28px;
 }
 
-#readerContent{
+.readerContent{
   max-height:75vh;
   overflow-y:auto;
   padding-right:10px;
+  font-size:18px;
+  line-height:1.8;
+  color:#ddd;
+  white-space:pre-wrap;
+  transition: font-size 0.25s ease;
 }
 
-#readerMeta{
+.readerMeta{
   color:#aaa;
   font-size:14px;
 }
@@ -393,16 +398,9 @@ input,textarea{
 
 
 
-#readerContent{
-  font-size:18px;
-  line-height:1.8;
-  color:#ddd;
-  white-space:pre-wrap;
-}
-
 
 /* Layout */
-#readerWrapper{
+.readerWrapper{
   display:flex;
   gap:20px;
   align-items:flex-start;
@@ -693,7 +691,6 @@ button:hover{
 }
 
 
-
 /* FOOTER */
 .footer{
   text-align:center;
@@ -899,7 +896,7 @@ Search, Read and Download books, upload PDFs, or paste your own text and convert
 <button onclick="searchBooks()">Search</button>
 <div id="bookResults" class="results-box"></div>
 <div id="searchPdfPages" class="results-box"></div>
-<div id="readerWrapper">
+<div class="readerWrapper">
 
   <!-- LEFT CONTROLS -->
   <div id="leftControls">
@@ -909,16 +906,16 @@ Search, Read and Download books, upload PDFs, or paste your own text and convert
   </div>
 
   <!-- CENTER READER -->
-  <div id="readerContainer">
+ <div class="readerContainer">
 
-    <div id="readerHeader">
-      <h2 id="readerTitle"></h2>
-      <p id="readerMeta"></p>
-    </div>
-
-    <div id="readerContent"></div>
-
+  <div class="readerHeader">
+    <h2 class="readerTitle"></h2>
+    <p class="readerMeta"></p>
   </div>
+
+  <div class="readerContent"></div>
+
+</div>
 
   <!-- RIGHT CONTROLS -->
   <div id="rightControls">
@@ -949,20 +946,39 @@ Search, Read and Download books, upload PDFs, or paste your own text and convert
 <div id="pdfPages" class="results-box"></div>
 
 <!-- LAYOUT -->
-<div id="pdfWrapper">
+<div class="readerWrapper">
 
-  <!-- LEFT SIDE -->
-  <textarea id="pdfTextViewer" placeholder="Selected PDF page text appears here..."></textarea>
+  <!-- LEFT CONTROLS -->
+  <div id="leftControls">
+    <button onclick="changeFontSize(1)">A+</button>
+    <button onclick="changeFontSize(-1)">A-</button>
+    <button onclick="toggleDarkMode()">🌙</button>
+  </div>
 
-  <!-- RIGHT SIDE CONTROLS -->
-  <div class="sideControls">
-    <button onclick="playText('pdfTextViewer')">▶ Play</button>
+  <!-- CENTER READER -->
+ <div class="readerContainer">
+
+  <div class="readerHeader">
+    <h2 class="readerTitle"></h2>
+    <p class="readerMeta"></p>
+  </div>
+
+  <div class="readerContent"></div>
+
+</div>
+
+  <!-- RIGHT CONTROLS -->
+  <div id="rightControls">
+    <button onclick="playText('reader')">▶ Play</button>
     <button onclick="pauseAudio()">⏸ Pause</button>
     <button onclick="resumeAudio()">⏯ Resume</button>
     <button onclick="stopAudio()">⏹ Stop</button>
   </div>
 
+ 
 </div>
+
+<h6>Note: If you find random numbers between you pdf lines which have no conext, these numbers might be given page numbers in the pdf </h6>
 
 </div>
 </div>
@@ -1090,6 +1106,11 @@ Search, Read and Download books, upload PDFs, or paste your own text and convert
 
 </div>
 
+
+
+
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
 <script>
@@ -1117,6 +1138,19 @@ function loadVoices(){
  });
 }
 
+function getActiveReader(){
+  const el = document.querySelector(".active-page .readerContent");
+  if(!el) console.error("No active reader found");
+  return el;
+}
+
+function getActiveTitle(){
+  return document.querySelector(".active-page .readerTitle");
+}
+
+function getActiveMeta(){
+  return document.querySelector(".active-page .readerMeta");
+}
 
 /* Smooth Scroll Logo Animation */
 let ticking = false;
@@ -1139,6 +1173,11 @@ function openPage(id){
  document.getElementById("landingPage").style.display="none";
  document.querySelectorAll(".section-page").forEach(p=>p.classList.remove("active-page"));
  document.getElementById(id).classList.add("active-page");
+
+ const reader = getActiveReader();
+ if(reader){
+   reader.style.fontSize = fontSize + "px";
+ }
 }
 
 function goHome(){
@@ -1267,7 +1306,7 @@ async function loadBook(book){
      return;
    }
    
-   document.getElementById("readerContent").innerText = "Loading book...";
+   getActiveReader().innerText = "Loading book...";
   
    const response = await fetch(
      `/api/load-book-text?url=${encodeURIComponent(textUrl)}`
@@ -1294,12 +1333,12 @@ async function loadBook(book){
 
    document.getElementById("bookResults").innerHTML = "";
 
-   document.getElementById("readerTitle").innerText = book.title;
+   getActiveTitle().innerText = book.title;
 
-   document.getElementById("readerMeta").innerText =
+   getActiveMeta().innerText =
    book.authors.map(a => a.name).join(", ");
 
-   document.getElementById("readerContent").innerText = text;
+   getActiveReader().innerText = text;
 
  }catch(error){
    console.error(error);
@@ -1311,7 +1350,7 @@ async function loadBook(book){
 async function downloadBook(){
  try{
 
-   const viewerText = document.getElementById("readerContent").innerText;
+   const viewerText = getActiveReader().innerText;
 
    if(!viewerText || viewerText.trim().length < 50){
    alert("Load book first.");
@@ -1369,58 +1408,68 @@ async function downloadBook(){
 }
 
 
-let fontSize = 18;
+let fontSize = parseInt(localStorage.getItem("fontSize")) || 18;
 
 function changeFontSize(change){
   fontSize += change;
-  document.getElementById("readerContent").style.fontSize = fontSize + "px";
-}
 
+  if(fontSize < 12) fontSize = 12;
+  if(fontSize > 45) fontSize = 45;
+
+  getActiveReader().style.fontSize = fontSize + "px";
+
+  localStorage.setItem("fontSize", fontSize);
+}
 function toggleDarkMode(){
-  const reader = document.getElementById("readerContainer");
+  const reader = document.querySelector(".active-page .readerContainer");
   reader.classList.toggle("light-mode");
 }
 
 async function loadPDFText(){
+
  const file = document.getElementById("pdfFile").files[0];
  if(!file) return alert("Choose a PDF.");
 
  const arrayBuffer = await file.arrayBuffer();
  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
- let pagesText = [];
+ let elements = [];
 
- // Read all pages
- for(let i = 1; i <= pdf.numPages; i++){
-   const page = await pdf.getPage(i);
-   const content = await page.getTextContent();
+for(let i = 1; i <= pdf.numPages; i++){
+  const page = await pdf.getPage(i);
+  const content = await page.getTextContent();
 
-   const pageText = content.items.map(item => item.str).join(" ");
-   pagesText.push(pageText);
- }
+  content.items.forEach(item => {
+    elements.push({
+      text: item.str,
+      size: item.transform[0],
+      y: item.transform[5],   // REAL vertical position
+      page: i
+    });
+  });
+}
 
- // Combine full PDF text
- let fullText = pagesText.join("\n");
+ let fullText = elements.map(e => e.text).join(" ");
 
- // Detect large heading sections
- let sections = detectBigHeadings(fullText);
+ let sections = detectSections(elements);
+ 
 
  let tocBox = document.getElementById("pdfPages");
  tocBox.innerHTML = "";
 
- /* PLAY FULL PDF OPTION FIRST */
  const fullDiv = document.createElement("div");
  fullDiv.className = "result-item";
  fullDiv.innerHTML =
  `<strong>▶ Play Full PDF</strong> <span style="color:#999;">(Entire Document)</span>`;
 
  fullDiv.onclick = () => {
-   document.getElementById("pdfTextViewer").value = fullText;
+  getActiveTitle().innerText = "PDF Document";
+  getActiveMeta().innerText = "Full PDF";
+  getActiveReader().innerText = fullText;
  };
 
  tocBox.appendChild(fullDiv);
 
- /* SECTION LIST */
  if(sections.length < 1){
    alert("No major headings found. Full PDF available.");
    return;
@@ -1437,7 +1486,9 @@ async function loadPDFText(){
    div.onclick = (() => {
       let txt = sections[i].content;
       return ()=>{
-         document.getElementById("pdfTextViewer").value = txt;
+        getActiveTitle().innerText = sections[i].title;
+        getActiveMeta().innerText = "PDF Section";
+        getActiveReader().innerText = txt;
       };
    })();
 
@@ -1445,73 +1496,109 @@ async function loadPDFText(){
  }
 }
 
+function detectSections(elements){
 
-/* Detect major heading sections */
-function detectBigHeadings(fullText){
+  const lines = groupIntoLines(elements);
 
- let lines = fullText.split("\n");
- let sections = [];
+  const avgSize = lines.reduce((sum,l)=>sum+l.size,0)/lines.length;
 
- let currentTitle = "Introduction";
- let currentContent = "";
+  let sections = [];
+  let current = {
+    title: "Start",
+    content: "",
+    page: 1
+  };
 
- for(let line of lines){
+  lines.forEach(line => {
 
-   line = line.trim();
+    const isPatternHeading =
+      /^(chapter|section|part)\s+\d+/i.test(line.text);
 
-   if(isBigHeading(line)){
+    const isVisualHeading =
+      line.size > avgSize * 1.15 &&
+      line.text.length > 5 &&
+      /^[A-Z]/.test(line.text);
 
-      if(currentContent.trim() !== ""){
-         sections.push({
-            title: currentTitle,
-            content: currentContent.trim()
-         });
+    if(isPatternHeading || isVisualHeading){
+
+      if(current.content.trim().length > 50){
+        sections.push({...current});
       }
 
-      currentTitle = line;
-      currentContent = "";
-   }
-   else{
-      currentContent += line + "\n";
-   }
- }
+      current = {
+        title: line.text,
+        content: "",
+        page: line.page
+      };
+    }
 
- if(currentContent.trim() !== ""){
-   sections.push({
-      title: currentTitle,
-      content: currentContent.trim()
-   });
- }
+    current.content += line.text + "\n";
+  });
 
- return sections;
+  if(current.content.trim()){
+    sections.push(current);
+  }
+
+  // fallback
+  if(sections.length === 0){
+    return [{
+      title: "Full Text",
+      content: elements.map(e => e.text).join(" ")
+    }];
+  }
+
+  return sections;
 }
 
+function groupIntoLines(elements){
 
-/* Smart heading detector */
-function isBigHeading(line){
+  let lines = [];
 
- if(line.length < 3) return false;
- if(line.length > 80) return false;
+  // group by page first
+  const pages = {};
 
- // ALL CAPS heading
- if(line === line.toUpperCase() && /[A-Z]/.test(line)){
-   return true;
- }
+  elements.forEach(el => {
+    if(!pages[el.page]) pages[el.page] = [];
+    pages[el.page].push(el);
+  });
 
- // Chapter style headings
- if(/^(chapter|section|part)\s+\d+/i.test(line)){
-   return true;
- }
+  Object.values(pages).forEach(pageItems => {
 
- // Title-style headings
- if(/^[A-Z][A-Za-z0-9 ,:'"()\-]+$/.test(line)
-    && line.split(" ").length <= 8){
-   return true;
- }
+    // sort by Y descending (top → bottom)
+    pageItems.sort((a,b) => b.y - a.y);
 
- return false;
+    let currentLine = [];
+    let lastY = null;
+
+    pageItems.forEach(el => {
+
+      if(lastY === null){
+        currentLine.push(el);
+        lastY = el.y;
+      }
+      else if(Math.abs(el.y - lastY) < 2.5){ // tighter threshold
+        currentLine.push(el);
+      }
+      else{
+        lines.push(currentLine);
+        currentLine = [el];
+        lastY = el.y;
+      }
+
+    });
+
+    if(currentLine.length){
+      lines.push(currentLine);
+    }
+
+  });
+
+  return lines.map(line => ({
+    text: line.map(e => e.text).join(" "),
+    size: Math.max(...line.map(e => e.size)),
+    page: line[0].page
+  }));
 }
-
 
 
 function closeLogin(){
@@ -1528,7 +1615,7 @@ function playText(id){
  let text;
 
  if(id === "reader"){
-   text = document.getElementById("readerContent").innerText.trim();
+   text = getActiveReader().innerText.trim();
  } else {
    text = document.getElementById(id).value.trim();
  }
@@ -1549,6 +1636,7 @@ function playText(id){
 
  speechSynthesis.speak(currentUtterance);
 }
+
 
  
 function pauseAudio(){
@@ -1634,6 +1722,13 @@ window.addEventListener("scroll", () => {
   if (rect.top < window.innerHeight - 100) {
     counterStarted = true;
     animateCounter();
+  }
+});
+
+window.addEventListener("load", () => {
+  const reader = getActiveReader();
+  if(reader){
+    reader.style.fontSize = fontSize + "px";
   }
 });
 
